@@ -1,0 +1,12 @@
+---
+
+tenant_name: {{}}
+tenant_username: {{}}
+tenant_password: {{}}
+tenant_email: {{}}
+#tenant_id: tenant-id
+ram: {{}}
+cores: {{}}
+network: {{}}
+subnet: {{}}
+port: {{}}

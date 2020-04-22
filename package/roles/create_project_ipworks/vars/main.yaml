@@ -1,0 +1,5 @@
+---
+
+atlastmp_ipw: {{ atlatmp }}/ipworks
+openrc_src: templates/hot/openrc
+tenant_file: templates/hot/tenant.yaml

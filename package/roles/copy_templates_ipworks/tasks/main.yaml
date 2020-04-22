@@ -1,0 +1,64 @@
+---
+
+- name: Deletes /tmp/ipworks directory on atlas server if exists
+  file:
+    path: {{atlastmp_ipw}}
+    state: absent
+
+- name: creates /tmp/ipworks directory on atlas server
+  file:
+    path: {{atlastmp_ipw}}
+    state: directory
+    owner: {{ATLAS_REMOTE_USER}}
+    group: {{ATLAS_REMOTE_USER}}
+
+- name: copy ipw_sc_image_name to atlas server
+  copy:
+    src: {{ipw_sc_image_name}}
+    dest: {{atlastmp_ipw}}
+
+- name: copy ipw_pl_image_name to atlas server
+  copy:
+    src: {{ipw_pl_image_name}}
+    dest: {{atlastmp_ipw}}
+
+- name: copy ipw_sc_recovery_image_name to atlas server
+  copy:
+    src: {{ipw_sc_recovery_image_name}}
+    dest: {{atlastmp_ipw}}
+
+- name: Deletes /tmp/ipworks directory on vnflcm server if exists
+  file:
+    path: {{vnflcmtmp}}
+    state: absent
+  delegate_to: LCM_Service
+
+- name: creates /tmp/ipworks directory on vnflcm server
+  file:
+    path: {{vnflcmtmp}}
+    state: directory
+  delegate_to: LCM_Service
+
+- name: copy ipw_hot_file to vnflcm server
+  copy:
+    src: {{ipw_hot_file}}
+    dest: {{vnflcmtmp}}
+  delegate_to: LCM_Service
+
+- name: copy ipw_scaling_file to vnflcm server
+  copy:
+    src: {{ipw_scaling_file}}
+    dest: {{vnflcmtmp}}
+  delegate_to: LCM_Service
+
+- name: copy ipw_hot_env_file to vnflcm server
+  copy:
+    src: {{ipw_hot_env_file}}
+    dest: {{vnflcmtmp}}
+  delegate_to: LCM_Service
+
+- name: copy ipw_rpm_bundle to vnflcm server
+  copy:
+    src: {{ipw_rpm_bundle}}
+    dest: {{vnflcmtmp}}
+  delegate_to: LCM_Service

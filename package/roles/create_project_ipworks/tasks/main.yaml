@@ -1,0 +1,119 @@
+---
+
+- name: getting OS_CACERT from openrc on atlas server
+  shell: cat {{atlashome}}openrc | grep OS_CACERT | awk -F '=' '{print $2}'
+  args:
+    executable: /bin/bash
+  register: cacert
+
+- debug:
+    msg: "{{cacert}}"
+
+- name: getting tenant-id of public keystone
+  shell: source openrc && openstack endpoint list | grep -w keystone | grep -w public | awk '{print $2}'
+  args:
+    executable: /bin/bash
+    chdir: {{atlashome}}
+  register: id
+
+- debug:
+    msg: "{{id.stdout}}"
+
+- name: getting internal-url using tenant-id of public keystone
+  shell: source openrc && openstack endpoint show {{id.stdout}} -f yaml | grep -w url | awk -F ' ' '{print $2}'
+  args:
+    executable: /bin/bash
+    chdir: {{atlashome}}
+  register: keystoneurl
+
+- debug:
+    msg: "{{keystoneurl.stdout}}"
+
+- name: replacing cacert and internal-url for openrc file to localhost
+  replace:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  with_items:
+    - { path: "{{openrc_src}}", regexp: 'cert', replace: "{{cacert.stdout}}" }
+    - { path: "{{openrc_src}}", regexp: 'authurl', replace: "{{keystoneurl.stdout}}" }
+  delegate_to: localhost
+
+- name: copy local opensrc_src to /tmp/ipworks/ as openrc
+  copy:
+    src: {{openrc_src}}
+    dest: {{atlastmp_ipw}}
+
+- include_vars: {{tenant_file}}
+
+- name: checking whether the project already exists
+  shell: source openrc && openstack project show {{ tenant_name }}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+  register: project
+  ignore_errors: True
+
+- debug:
+    msg: "{{project}}"
+
+- name: creates project if doesn't exists
+  shell: source openrc && openstack project create --description "{{ tenant_name }}" {{ tenant_name }}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+  register: project1
+  when: "'No project with a name' in project.stderr"
+
+- debug:
+    msg: "{{project1}}"
+
+- name: checking whether the user already exists
+  shell: source openrc && openstack user show {{ tenant_username }}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+  register: user
+  ignore_errors: True
+
+- debug:
+    msg: "{{user}}"
+
+- name: creates user if doesn't exists
+  shell: source openrc && openstack user create {{ tenant_username }} --project {{ tenant_name }} --password {{ tenant_password }} --email {{ tenant_email }}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+  register: user1
+  when: "'No user with a name' in project.stderr"
+
+- debug:
+    msg: "{{user1}}"
+
+- name: adding tenant_username role as admin
+  shell: source openrc && openstack role add --user {{ tenant_username }} --project {{ tenant_name }} admin
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+
+- name: getting tenant_id of new project
+  shell: source openrc &&  openstack project show {{ tenant_name }} -f yaml | grep -w id | awk -F ' ' '{print $2}'
+  args:
+    executable: /bin/bash
+    chdir: {{atlashome}}
+  register: id1
+
+- debug:
+    msg: "{{id1.stdout}}"
+
+- name: updating quota against ram, cores
+  shell: source openrc && nova quota-update --ram {{ram}} --cores {{cores}} --tenant-id {id1.stdout}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}
+
+- name: updating quota against network, subnet, port, router
+  shell: source openrc && neutron quota-update --tenant-id {id1.stdout} --network {{network}} --subnet {{subnet}}  --port {{port}} --router {{router}}
+  args:
+    executable: /bin/bash
+    chdir: {{atlastmp_ipw}}

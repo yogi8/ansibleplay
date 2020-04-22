@@ -1,0 +1,6 @@
+export OS_AUTH_URL=authurl
+export OS_USERNAME='{{vnf.Tenant_Username}}'
+export OS_TENANT_NAME='{{vnf.Tenant}}'
+export OS_PASSWORD='{{vnf.Tenant_Password}}'
+export OS_CACERT=cert
+export LC_ALL='en_US.UTF-8'

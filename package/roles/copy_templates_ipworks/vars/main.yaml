@@ -1,0 +1,11 @@
+---
+#atlastmp: /tmp/ipworks
+atlastmp_ipw: {{ atlatmp }}/ipworks
+ipw_sc_image_name: templates/images/ipw-sc-22.qcow2
+ipw_pl_image_name: templates/images/pxeboot.qcow2
+ipw_sc_recovery_image_name: templates/images/sc-pxeboot.qcow2
+vnflcmtmp: /tmp/ipworks
+ipw_hot_file: templates/hot/main.yaml
+ipw_scaling_file: templates/hot/ipw_scaling_group.yaml
+ipw_hot_env_file: templates/hot/env.yaml
+ipw_rpm_bundle: templates/vnf_workflows/IPWorks_CXP9040851-3.3.0-1.noarch.rpm

@@ -1,0 +1,22 @@
+---
+
+- hosts: atlas
+  remote_user: {{ATLAS_REMOTE_USER}}
+  become: true
+  become_user: {{ATLAS_BECOME_USER}}
+  roles:
+    - { role: copy_templates_ipworks, tags: 'copy_templates_ipworks'}
+
+- hosts: atlas
+  remote_user: {{ATLAS_REMOTE_USER}}
+  become: true
+  become_user: {{ATLAS_BECOME_USER}}
+  roles:
+    - { role: copy_templates_ipworks, tags: 'copy_templates_ipworks'}
+
+- hosts: atlas
+  remote_user: {{ATLAS_REMOTE_USER}}
+  become: true
+  become_user: {{ATLAS_BECOME_USER}}
+  roles:
+    - { role: copy_templates_ipworks, tags: 'copy_templates_ipworks'}
